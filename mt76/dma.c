@@ -3,9 +3,9 @@
  * Copyright (C) 2016 Felix Fietkau <nbd@nbd.name>
  */
 
+#include "dma.h"
 #include "../include/compat.h"
 #include "mt76.h"
-#include "dma.h"
 #include <linux/dma-mapping.h>
 
 #if IS_ENABLED(CONFIG_NET_MEDIATEK_SOC_WED)

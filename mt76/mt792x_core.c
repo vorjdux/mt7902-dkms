@@ -4,8 +4,8 @@
 #include <linux/firmware.h>
 #include <linux/module.h>
 
-#include "mt792x.h"
 #include "dma.h"
+#include "mt792x.h"
 
 static const struct ieee80211_iface_limit if_limits[] = {
     {.max = MT792x_MAX_INTERFACES, .types = BIT(NL80211_IFTYPE_STATION)},
