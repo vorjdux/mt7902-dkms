@@ -5,6 +5,8 @@
 #define __MT7925_MAC_H
 
 #include "../mt76_connac3_mac.h"
+#include "../mt76.h"
+#include "mt7902.h"
 
 #define MT_WTBL_TXRX_CAP_RATE_OFFSET	7
 #define MT_WTBL_TXRX_RATE_G2_HE		24

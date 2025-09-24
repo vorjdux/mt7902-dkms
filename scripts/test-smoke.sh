@@ -72,6 +72,17 @@ fi
 
 log_info "Modules loaded successfully"
 
+# Firmware diagnostics: list installed mediatek firmware and recent dmesg entries
+log_info "Listing /lib/firmware/mediatek (if present) to help diagnose firmware loading..."
+if [[ -d /lib/firmware/mediatek ]]; then
+    ls -l /lib/firmware/mediatek | egrep -i 'WIFI_RAM_CODE|patch_mcu|mt79' || true
+else
+    log_warn "/lib/firmware/mediatek not found on this system"
+fi
+
+log_info "Recent mt79/mt7902 dmesg lines (for firmware/MCU errors)"
+dmesg | egrep -i 'mt79|mt7902|patch semaphore|patch_sem|firmware|timeout' | tail -n 40 || true
+
 # Step 4: Wait for device initialization
 log_info "Waiting for device initialization..."
 sleep 3

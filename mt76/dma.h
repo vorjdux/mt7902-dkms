@@ -5,6 +5,14 @@
 #ifndef __MT76_DMA_H
 #define __MT76_DMA_H
 
+#include <linux/types.h>
+#include <linux/bitops.h>
+#include <linux/bitfield.h>
+#include <linux/kernel.h>
+#ifdef CONFIG_NET_MEDIATEK_SOC_WED
+#include <linux/soc/mediatek/mtk_wed.h>
+#endif
+
 #define DMA_DUMMY_DATA			((void *)~0)
 
 #define MT_RING_SIZE			0x10

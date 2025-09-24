@@ -288,8 +288,9 @@ run_multi_kernel_test() {
     log_info "Multi-kernel testing completed!"
     log_info "This test validates our driver against:"
     log_info "  • Kernel 6.8.x (LTS baseline)"
-    log_info "  • Kernel 6.14.x (DKMS problem kernel)"  
-    log_info "  • Any other available headers"
+    log_info "  • Kernel 6.14.x (DKMS problem kernel)"
+    log_info "  • Specific Ubuntu kernel: 6.14.0-32-generic (local test target)"
+    log_info "  • Any other available headers found in the image"
 }
 
 cleanup_docker() {

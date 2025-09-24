@@ -22,15 +22,15 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get update && \
     # Try 6.8 LTS headers
     (apt-get install -y linux-headers-6.8.0-84-generic || \
-     apt-get install -y linux-headers-6.8.0-*-generic || \
-     echo "6.8 headers not available") && \
+    apt-get install -y linux-headers-6.8.0-*-generic || \
+    echo "6.8 headers not available") && \
     # Try 6.14 headers (the problematic version)
     (apt-get install -y linux-headers-6.14.0-32-generic || \
-     apt-get install -y linux-headers-6.14.0-*-generic || \
-     echo "6.14 headers not available") && \
+    apt-get install -y linux-headers-6.14.0-*-generic || \
+    echo "6.14 headers not available") && \
     # Try latest available headers
     (apt-get install -y linux-headers-generic || \
-     echo "Generic headers not available") && \
+    echo "Generic headers not available") && \
     rm -rf /var/lib/apt/lists/*
 
 WORKDIR /workspace

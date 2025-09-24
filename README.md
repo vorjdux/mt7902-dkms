@@ -179,6 +179,20 @@ Firmware is automatically downloaded from Acer's driver package:
 - **Installation**: Automatically placed in `/lib/firmware/mediatek/`
 - **License**: Proprietary (Acer/MediaTek)
 
+Important notes about firmware filenames
+ - The driver looks for ROM patch and RAM firmware in `/lib/firmware/mediatek/`.
+ - Preferred filenames (the driver will try them in order):
+	 - ROM patch: `WIFI_MT7902_patch_mcu_1_1_hdr.bin`, `WIFI_MT7922_patch_mcu_1_1_hdr.bin`, `WIFI_MT7961_patch_mcu_1_2_hdr.bin`, `WIFI_MT7925_patch_mcu_1_1_hdr.bin`
+	 - RAM firmware: `WIFI_RAM_CODE_MT7902_1.bin`, `WIFI_RAM_CODE_MT7922_1.bin`, `WIFI_RAM_CODE_MT7961_1.bin`, `WIFI_RAM_CODE_MT7925_1_1.bin`
+ - If your vendor package installs other MediaTek names (e.g. MT7961/MT7922), the driver will attempt several fallbacks automatically. If loading still fails, copy the matching blobs into `/lib/firmware/mediatek/` using the names above or create symlinks and reload the module.
+
+Troubleshooting firmware loading
+ - Check firmware presence:
+	 ls -l /lib/firmware/mediatek | egrep -i 'WIFI_RAM_CODE|patch_mcu|mt79|mt79'
+ - Follow dmesg while probing the module to see how firmware loading went:
+	 sudo dmesg -wH | grep -i mt79 -A5 -B2
+ - If you see messages like "Failed to get patch semaphore" or "Timeout for initializing firmware", verify the files exist and try the steps above. The driver includes extra retry/timeouts for newer kernels; if intermittent failures persist, increasing retry counts or sleep between retries may help.
+
 ## Contributing
 
 1. Fork the repository

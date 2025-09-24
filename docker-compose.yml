@@ -6,35 +6,35 @@ services:
     build: .
     volumes:
       - .:/workspace
-    command: ["./scripts/build.sh", "--verbose"]
-    
+    command: [ "./scripts/build.sh", "--verbose" ]
+
   # Full test including smoke test simulation
   full-test:
     build: .
     volumes:
       - .:/workspace
-    command: ["/bin/bash", "-c", "./scripts/build.sh --verbose && echo '=== Build Complete ===' && ls -la mt76/mt7902/*.ko && for ko in mt76/mt7902/*.ko; do echo '--- Testing $$ko ---'; /sbin/modinfo $$ko 2>/dev/null || echo 'modinfo failed'; done"]
-    
+    command: [ "/bin/bash", "-c", "./scripts/build.sh --verbose && echo '=== Build Complete ===' && ls -la mt76/mt7902/*.ko && for ko in mt76/mt7902/*.ko; do echo '--- Testing $$ko ---'; /sbin/modinfo $$ko 2>/dev/null || echo 'modinfo failed'; done" ]
+
   # Interactive shell for debugging
   debug:
     build: .
     volumes:
       - .:/workspace
-    command: ["/bin/bash"]
+    command: [ "/bin/bash" ]
     stdin_open: true
     tty: true
-    
+
   # Test with different Ubuntu versions
   ubuntu-22:
     image: ubuntu:22.04
     volumes:
       - .:/workspace
     working_dir: /workspace
-    command: ["/bin/bash", "-c", "apt-get update && apt-get install -y build-essential linux-headers-generic bc kmod && ./scripts/build.sh --verbose"]
-    
+    command: [ "/bin/bash", "-c", "apt-get update && apt-get install -y build-essential linux-headers-generic bc kmod && ./scripts/build.sh --verbose" ]
+
   ubuntu-23:
     image: ubuntu:23.04
     volumes:
       - .:/workspace
     working_dir: /workspace
-    command: ["/bin/bash", "-c", "apt-get update && apt-get install -y build-essential linux-headers-generic bc kmod && ./scripts/build.sh --verbose"]
+    command: [ "/bin/bash", "-c", "apt-get update && apt-get install -y build-essential linux-headers-generic bc kmod && ./scripts/build.sh --verbose" ]

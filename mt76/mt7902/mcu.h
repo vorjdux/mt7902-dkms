@@ -5,6 +5,7 @@
 #define __MT7925_MCU_H
 
 #include "../mt76_connac_mcu.h"
+#include "mt7902.h"
 
 /* ext event table */
 enum {
