@@ -1,0 +1,61 @@
+# Multi-Kernel Testing Dockerfile for MT7902 driver
+FROM ubuntu:24.04
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    bc \
+    kmod \
+    cpio \
+    flex \
+    libncurses5-dev \
+    libelf-dev \
+    libssl-dev \
+    dkms \
+    wget \
+    curl \
+    software-properties-common \
+    && rm -rf /var/lib/apt/lists/*
+
+# Try to install multiple kernel headers versions
+# These are the versions we want to test against
+RUN apt-get update && \
+    # Try 6.8 LTS headers
+    (apt-get install -y linux-headers-6.8.0-84-generic || \
+     apt-get install -y linux-headers-6.8.0-*-generic || \
+     echo "6.8 headers not available") && \
+    # Try 6.14 headers (the problematic version)
+    (apt-get install -y linux-headers-6.14.0-32-generic || \
+     apt-get install -y linux-headers-6.14.0-*-generic || \
+     echo "6.14 headers not available") && \
+    # Try latest available headers
+    (apt-get install -y linux-headers-generic || \
+     echo "Generic headers not available") && \
+    rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace
+
+# Add a helper script to test all available kernels
+RUN echo '#!/bin/bash' > /test-all-kernels.sh && \
+    echo 'echo "=== Multi-Kernel Build Test ==="' >> /test-all-kernels.sh && \
+    echo 'success_count=0' >> /test-all-kernels.sh && \
+    echo 'total_count=0' >> /test-all-kernels.sh && \
+    echo 'for header_dir in /lib/modules/*/build; do' >> /test-all-kernels.sh && \
+    echo '  if [[ -d "$header_dir" ]]; then' >> /test-all-kernels.sh && \
+    echo '    version=$(basename $(dirname "$header_dir"))' >> /test-all-kernels.sh && \
+    echo '    echo "=== Testing kernel $version ==="' >> /test-all-kernels.sh && \
+    echo '    ((total_count++))' >> /test-all-kernels.sh && \
+    echo '    export KDIR="$header_dir"' >> /test-all-kernels.sh && \
+    echo '    if make clean >/dev/null 2>&1 && ./scripts/build.sh; then' >> /test-all-kernels.sh && \
+    echo '      echo "✅ SUCCESS: $version"' >> /test-all-kernels.sh && \
+    echo '      ((success_count++))' >> /test-all-kernels.sh && \
+    echo '    else' >> /test-all-kernels.sh && \
+    echo '      echo "❌ FAILED: $version"' >> /test-all-kernels.sh && \
+    echo '    fi' >> /test-all-kernels.sh && \
+    echo '    echo ""' >> /test-all-kernels.sh && \
+    echo '  fi' >> /test-all-kernels.sh && \
+    echo 'done' >> /test-all-kernels.sh && \
+    echo 'echo "=== Results: $success_count/$total_count kernels successful ==="' >> /test-all-kernels.sh && \
+    chmod +x /test-all-kernels.sh
+
+CMD ["/test-all-kernels.sh"]

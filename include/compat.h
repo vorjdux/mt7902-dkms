@@ -86,6 +86,23 @@
 		      struct ieee80211_key_conf *key)
 #endif
 
+/* Network device initialization compatibility */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
+/* init_dummy_netdev() was removed in 6.14, provide compatibility wrapper */
+static inline void mt7902_init_dummy_netdev(struct net_device *dev)
+{
+	memset(dev, 0, sizeof(*dev));
+	dev->reg_state = NETREG_DUMMY;
+	/* Initialize minimal fields needed for NAPI */
+	INIT_LIST_HEAD(&dev->napi_list);
+	/* Set up dummy operations */
+	dev->netdev_ops = &(struct net_device_ops){};
+}
+#define init_dummy_netdev(dev) mt7902_init_dummy_netdev(dev)
+#else
+/* Use kernel's init_dummy_netdev for older kernels */
+#endif
+
 /* Helper macros for version-specific code */
 #define MT7902_KERNEL_VERSION_GE(major, minor, patch) \
 	(LINUX_VERSION_CODE >= KERNEL_VERSION(major, minor, patch))

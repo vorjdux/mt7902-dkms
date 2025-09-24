@@ -6,6 +6,7 @@
 #include <linux/dma-mapping.h>
 #include "mt76.h"
 #include "dma.h"
+#include "../include/compat.h"
 
 #if IS_ENABLED(CONFIG_NET_MEDIATEK_SOC_WED)
 

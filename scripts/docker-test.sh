@@ -39,6 +39,7 @@ COMMANDS:
     debug           Start interactive shell in container
     kernelcheck     Check kernel and header compatibility
     multi           Test across multiple Ubuntu versions
+    kernels         Test across multiple kernel versions
     clean           Clean up Docker images and containers
     
 OPTIONS:
@@ -52,6 +53,7 @@ EXAMPLES:
     $0 debug                    # Interactive debugging
     $0 kernelcheck              # Check kernel/header compatibility
     $0 multi                    # Multi-version testing
+    $0 kernels                  # Multi-kernel testing
     $0 clean                    # Cleanup
 
 REQUIREMENTS:
@@ -265,6 +267,31 @@ run_multi_version_test() {
     fi
 }
 
+run_multi_kernel_test() {
+    log_step "Testing across multiple kernel versions..."
+    
+    log_info "Building multi-kernel test image..."
+    if ! docker build -f Dockerfile.kerneltest -t mt7902-kerneltest .; then
+        log_error "Failed to build kernel test image"
+        return 1
+    fi
+    
+    log_step "Running tests across all available kernel headers..."
+    
+    # Run the comprehensive kernel test
+    docker run --rm -v "$PWD:/workspace" mt7902-kerneltest
+    
+    # Cleanup
+    log_info "Cleaning up test image..."
+    docker rmi mt7902-kerneltest >/dev/null 2>&1 || true
+    
+    log_info "Multi-kernel testing completed!"
+    log_info "This test validates our driver against:"
+    log_info "  • Kernel 6.8.x (LTS baseline)"
+    log_info "  • Kernel 6.14.x (DKMS problem kernel)"  
+    log_info "  • Any other available headers"
+}
+
 cleanup_docker() {
     log_step "Cleaning up Docker resources..."
     
@@ -295,7 +322,7 @@ main() {
                 show_help
                 exit 0
                 ;;
-            build|test|debug|kernelcheck|multi|clean)
+            build|test|debug|kernelcheck|multi|kernels|clean)
                 command="$1"
                 shift
                 ;;
@@ -336,6 +363,10 @@ main() {
             ;;
         multi)
             run_multi_version_test
+            ;;
+        kernels)
+            check_docker
+            run_multi_kernel_test
             ;;
         clean)
             cleanup_docker

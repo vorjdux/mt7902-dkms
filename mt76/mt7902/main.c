@@ -561,14 +561,15 @@ out:
 	return err;
 }
 
-/* Compatibility wrapper for kernel 6.14+ set_key signature change */
+/* Compatibility wrapper for kernel 6.14+ get_txpower signature change */
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
-static int mt7902_set_key_compat(struct ieee80211_hw *hw, enum set_key_cmd cmd,
-				 struct ieee80211_vif *vif, struct ieee80211_sta *sta,
-				 struct ieee80211_key_conf *key, unsigned int link_id)
+static int mt7902_get_txpower_compat(struct ieee80211_hw *hw,
+				     struct ieee80211_vif *vif,
+				     unsigned int link_id,
+				     int *dbm)
 {
-	/* For now, ignore the link_id parameter and call the original function */
-	return mt7902_set_key(hw, cmd, vif, sta, key);
+	/* Ignore the link_id parameter and call the original function */
+	return mt7902_mt76_get_txpower(hw, vif, dbm);
 }
 #endif
 
@@ -1447,7 +1448,11 @@ const struct ieee80211_ops mt7902_ops = {
 	.wake_tx_queue = mt7902_mt76_wake_tx_queue,
 	.release_buffered_frames = mt7902_mt76_release_buffered_frames,
 	.channel_switch_beacon = mt7902_channel_switch_beacon,
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
+	.get_txpower = mt7902_get_txpower_compat,
+#else
 	.get_txpower = mt7902_mt76_get_txpower,
+#endif
 	.get_stats = mt7902_mt792x_get_stats,
 	.get_et_sset_count = mt7902_mt792x_get_et_sset_count,
 	.get_et_strings = mt7902_mt792x_get_et_strings,
