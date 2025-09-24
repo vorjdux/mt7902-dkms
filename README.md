@@ -193,6 +193,39 @@ Troubleshooting firmware loading
 	 sudo dmesg -wH | grep -i mt79 -A5 -B2
  - If you see messages like "Failed to get patch semaphore" or "Timeout for initializing firmware", verify the files exist and try the steps above. The driver includes extra retry/timeouts for newer kernels; if intermittent failures persist, increasing retry counts or sleep between retries may help.
 
+Make firmware symlinks helper
+ - This repository includes a small, interactive helper script that can create non-destructive
+	 symlinks from existing MT79xx firmware blobs to the exact filenames the driver expects.
+	 This is useful when vendor packages install ROM/RAM blobs under a different MT79xx family
+	 name (for example MT7961 or MT7922) but the driver looks for the MT7902 names.
+
+ - Script: `scripts/make-firmware-symlinks.sh`
+	 - Safe: the script will never overwrite real files. It only creates symlinks when the
+		 target filename is missing and a compatible source blob is available.
+	 - Interactive: prompts before creating each symlink so you can review changes.
+	 - Non-destructive: prints what it will do and lets you abort.
+
+Usage examples
+```bash
+# See what firmware files the script would create (dry-run)
+./scripts/make-firmware-symlinks.sh --dry-run
+
+# Create recommended symlinks (interactive confirmation)
+sudo ./scripts/make-firmware-symlinks.sh
+
+# If you prefer non-interactive mode (careful):
+sudo ./scripts/make-firmware-symlinks.sh --yes
+```
+
+Notes
+- After creating symlinks, reload the module or reboot so the firmware chooser runs again:
+	```bash
+	sudo modprobe -r mt7902 mt7902-common || true
+	sudo modprobe mt7902-common && sudo modprobe mt7902
+	```
+- Always inspect the symlinks and firmware files in `/lib/firmware/mediatek/` to ensure
+	the blobs look correct and originate from a trustworthy vendor package.
+
 ## Contributing
 
 1. Fork the repository
