@@ -6,6 +6,7 @@
 #include <linux/sched.h>
 #include <linux/of.h>
 #include "mt76.h"
+#include "../include/compat.h"
 
 #define CHAN2G(_idx, _freq) {			\
 	.band = NL80211_BAND_2GHZ,		\
@@ -1020,6 +1021,17 @@ out:
 }
 EXPORT_SYMBOL_GPL(mt7902_mt76_get_survey);
 
+/* Compatibility wrapper for kernel 6.15+ get_survey signature change */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+int mt7902_get_survey_compat(struct ieee80211_hw *hw, int idx,
+			    struct survey_info *survey, u32 flags)
+{
+	/* For now, ignore the flags parameter and call the original function */
+	return mt7902_mt76_get_survey(hw, idx, survey);
+}
+EXPORT_SYMBOL_GPL(mt7902_get_survey_compat);
+#endif
+
 void mt7902_mt76_wcid_key_setup(struct mt7902_mt76_dev *dev, struct mt7902_mt76_wcid *wcid,
 			 struct ieee80211_key_conf *key)
 {
@@ -1497,6 +1509,20 @@ int mt7902_mt76_sta_state(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 }
 EXPORT_SYMBOL_GPL(mt7902_mt76_sta_state);
 
+/* Compatibility wrapper for kernel 6.14+ sta_state signature change */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
+int mt7902_sta_state_compat(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+			   struct ieee80211_sta *sta,
+			   enum ieee80211_sta_state old_state,
+			   enum ieee80211_sta_state new_state,
+			   bool link_sta)
+{
+	/* For now, ignore the link_sta parameter and call the original function */
+	return mt7902_mt76_sta_state(hw, vif, sta, old_state, new_state);
+}
+EXPORT_SYMBOL_GPL(mt7902_sta_state_compat);
+#endif
+
 void mt7902_mt76_sta_pre_rcu_remove(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 			     struct ieee80211_sta *sta)
 {
@@ -1565,6 +1591,19 @@ int mt7902_mt76_get_txpower(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
 	return 0;
 }
 EXPORT_SYMBOL_GPL(mt7902_mt76_get_txpower);
+
+/* Compatibility wrapper for kernel 6.14+ get_txpower signature change */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
+int mt7902_get_txpower_compat(struct ieee80211_hw *hw, struct ieee80211_vif *vif,
+			     unsigned int *dbm)
+{
+	int dbm_int;
+	int ret = mt7902_mt76_get_txpower(hw, vif, &dbm_int);
+	*dbm = (unsigned int)dbm_int;
+	return ret;
+}
+EXPORT_SYMBOL_GPL(mt7902_get_txpower_compat);
+#endif
 
 int mt7902_mt76_init_sar_power(struct ieee80211_hw *hw,
 			const struct cfg80211_sar_specs *sar)

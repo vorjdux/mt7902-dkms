@@ -3,11 +3,42 @@
 *.bz
 *.zip
 
+# Build artifacts
 *.o
 *.mod
+*.mod.c
+*.mod.o
 *.cmd
 *.ko
 *.rej
+*.d
 
+# Kernel module build files
+Module.symvers
+modules.order
+
+# Firmware and backups
 firmware/
 .backup/
+
+# Docker/container files (optional - comment out if you want to track them)
+# .dockerignore
+
+# Editor/IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+*.bak

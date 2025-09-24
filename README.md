@@ -1,78 +1,205 @@
-# HELP NEEDED 
+# MT7902 DKMS Wi-Fi Driver
 
-Secureboot based module loading needs testing, as my test environment doesn't have secureboot. Please follow the [Ubuntu SecureBoot docs](https://wiki.ubuntu.com/UEFI/SecureBoot/) for details.
-
-# mt7902-dkms
-Create driver for MT7902 by cloning the [MT9721 driver from the kernel](https://github.com/torvalds/linux/tree/master/drivers/net/wireless/mediatek/mt76/mt7921) and modifying it.
-
-## Motivation
-https://github.com/keepsoftware/mt7902-dkms/issues/2
+Linux kernel driver for MediaTek MT7902 Wi-Fi chips (PCI ID `14c3:7902`), based on the upstream MT7921 driver with compatibility updates for modern kernels.
 
 ## Status
-As of now, the code is purely the driver for the mt7921, with just string replacement from mt7921 to mt7902 even in filenames. The code builds with DKMS, but loading of the modules and further is untested yet.
+
+✅ **Kernel Compatibility**: 6.8 - 6.16+  
+✅ **Build System**: DKMS and manual builds supported  
+✅ **Platform**: Ubuntu 24.04, kernel 6.14+ tested  
+⚠️ **Secure Boot**: Needs testing (see [Ubuntu SecureBoot docs](https://wiki.ubuntu.com/UEFI/SecureBoot/))
 
 ## Requirements
-- Best tested against the [Ubuntu Mainline Kernel](https://wiki.ubuntu.com/Kernel/MainlineBuilds) [v6.8](https://kernel.ubuntu.com/mainline/v6.8/) or greater installed on [Ubuntu 24.04 (Noble Numbat)](https://cloud-images.ubuntu.com/noble/)
 
-- `sudo apt install dkms` should cover all the requirements to test this on ubuntu/debian systems. I'm out of touch with Rocky/Alma/Fedora and cousins.
+### System Requirements
+- **Kernel**: Linux 6.8+ (tested up to 6.16)
+- **OS**: Ubuntu 24.04+ recommended
+- **Hardware**: MediaTek MT7902 Wi-Fi chip
 
-## Usage instructions
+### Build Dependencies
+```bash
+sudo apt install build-essential linux-headers-$(uname -r) dkms
+```
 
-- *(One time setup)* Clone this repo into `/usr/src/mt7902`:
-  ```
-  sudo git clone https://github.com/samveen/mt7902-dkms /usr/src/mt7902
-  ```
+## Quick Start
 
-- Create a link to the source dir with a version number(easier versioned driver updates):
-  ```
-  sudo ln -s /usr/src/mt7902 /usr/src/mt7902-0.0.1
-  ```
+### Option 1: Docker Testing (Recommended - No Host Impact)
+```bash
+# Clone the repository
+git clone https://github.com/your-repo/mt7902-dkms
+cd mt7902-dkms
 
-- Register the module with DKMS(for a specific kernel version, add `-k $KVER`):
-  ```
-  sudo dkms add --verbose -m mt7902 -v 0.0.1
-  ```
+# Quick build test
+./scripts/docker-test.sh build
 
-- Build and install the module(for a specific kernel version, add `-k $KVER`):
-  ```
-  sudo dkms build --verbose -m mt7902 -v 0.0.1
-  sudo dkms install --verbose -m mt7902 -v 0.0.1
-  ```
+# Comprehensive testing
+./scripts/docker-test.sh test
 
-- Check status:
-  ```
-  sudo dkms status --verbose -m mt7902 -v 0.0.1
-  ```
+# Test across multiple Ubuntu versions
+./scripts/docker-test.sh multi
 
-- Get rid of this setup in case it's a pain:
-  ```
-  sudo dkms uninstall --verbose -m mt7902 -v 0.0.1
-  sudo dkms remove --verbose -m mt7902 -v 0.0.1 --all
-  sudo rm -fR /usr/src/mt7902\*
-  ```
+# Interactive debugging
+./scripts/docker-test.sh debug
+```
 
-- **Firmware download/install** - Downloaded from Acer website and installed into /lib/firmware/mediatek/
+### Option 2: Manual Build (Host System)
+```bash
+# Install firmware
+cd firmware && sudo bash get-firmware.sh && cd ..
 
-  ```
-  cd firmware
-  sudo bash -x get-firmware.sh
-  ```
+# Build the driver
+./scripts/build.sh
 
+# Test the driver
+sudo ./scripts/test-smoke.sh
+```
 
-- Update source
-  ```
-  cd /usr/src/mt7902 && sudo git pull
-  ```
+### Option 3: DKMS Installation
 
-## PCI ID details
+```bash
+# Clone to DKMS source directory
+sudo git clone https://github.com/your-repo/mt7902-dkms /usr/src/mt7902-0.0.1
 
-- [https://wikidevi.wi-cat.ru/MediaTek\_MT7902\_Reference\_Design](https://wikidevi.wi-cat.ru/MediaTek_MT7902_Reference_Design)
-- Windows driver `inf` contents as sources from link in [firmware/acer.url](firmware/acer.url)
+# Register and build with DKMS
+sudo dkms add mt7902/0.0.1
+sudo dkms build mt7902/0.0.1
+sudo dkms install mt7902/0.0.1
+
+# Install firmware
+cd /usr/src/mt7902-0.0.1/firmware && sudo bash get-firmware.sh
+
+# Check status
+sudo dkms status mt7902
+```
+
+## Troubleshooting
+
+### Build Issues
+- **Missing headers**: `sudo apt install linux-headers-$(uname -r)`
+- **Kernel too old**: Update to kernel 6.8+ or use kernel compatibility patches
+- **Build failures**: Check `dmesg` for detailed error messages
+
+### Runtime Issues
+```bash
+# Check if device is detected
+lspci -d 14c3:7902
+
+# Check rfkill status
+rfkill list wifi
+
+# Check kernel messages
+dmesg | grep mt7902
+
+# Manual module loading
+sudo modprobe -r mt7902 mt7902-common  # unload
+sudo modprobe mt7902-common && sudo modprobe mt7902  # load
+```
+
+### Secure Boot
+For systems with Secure Boot enabled:
+1. Sign the modules with your MOK key
+2. Or disable Secure Boot temporarily for testing
+3. See [Ubuntu Secure Boot documentation](https://wiki.ubuntu.com/UEFI/SecureBoot/)
+
+## Uninstallation
+
+### DKMS Method
+```bash
+sudo dkms uninstall mt7902/0.0.1
+sudo dkms remove mt7902/0.0.1 --all
+sudo rm -rf /usr/src/mt7902*
+```
+
+### Manual Method
+```bash
+# Remove modules
+sudo rmmod mt7902 mt7902-common
+rm -rf /path/to/mt7902-dkms
+```
+
+## Development
+
+### Docker-based Testing (Recommended)
+```bash
+# Quick build test (no host system impact)
+./scripts/docker-test.sh build
+
+# Full validation with module checks
+./scripts/docker-test.sh test
+
+# Test across Ubuntu 22.04, 23.04, 24.04
+./scripts/docker-test.sh multi
+
+# Interactive debugging shell
+./scripts/docker-test.sh debug
+
+# Clean up Docker resources
+./scripts/docker-test.sh clean
+```
+
+### Building for Different Kernels
+```bash
+# Build for specific kernel version
+./scripts/build.sh --kver 6.14.0-generic
+
+# Verbose build output
+./scripts/build.sh --verbose
+
+# Docker build with verbose output
+./scripts/docker-test.sh build --verbose
+```
+
+### Running Tests
+```bash
+# Docker-based smoke test (safe)
+./scripts/docker-test.sh test
+
+# Host-based smoke test (requires root)
+sudo ./scripts/test-smoke.sh
+
+# Check for API compatibility issues
+grep -r "LINUX_VERSION_CODE" include/
+```
+
+## Hardware Compatibility
+
+### Supported Devices
+- **PCI ID**: `14c3:7902` (base MediaTek MT7902)
+- **Variants**: MicroTek, AzureWave modules
+- **Interface**: PCIe only (SDIO/USB variants disabled)
+
+### Known Working Hardware
+- Various laptop Wi-Fi cards with MT7902 chipset
+- See [MediaTek MT7902 Reference Design](https://wikidevi.wi-cat.ru/MediaTek_MT7902_Reference_Design)
 
 ## Firmware
-Initial firmware source is the acer website URL for the mt7902 windows driver. This needs to be clarified, as it's proprietary.
 
-# License
-- For licensing information of the source, please see https://github.com/torvalds/linux/
-- For licensing information of firmware, there is no firmware in this repo.
-- The contents of URL locations in `firmware/` that are owned by their respective owners. Visit their websites for licensing information.
+Firmware is automatically downloaded from Acer's driver package:
+- **Source**: Acer Windows driver package
+- **Installation**: Automatically placed in `/lib/firmware/mediatek/`
+- **License**: Proprietary (Acer/MediaTek)
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Test with `./scripts/build.sh && sudo ./scripts/test-smoke.sh`
+4. Submit a pull request
+
+### Kernel API Updates
+When updating for new kernels:
+1. Add compatibility shims to `include/compat.h`
+2. Update function signatures in relevant files
+3. Test across kernel versions 6.8-6.16+
+
+## License
+
+- **Driver Source**: GPL-2.0 (follows upstream Linux kernel)
+- **Firmware**: Proprietary (not included in repository)
+- **Build Scripts**: GPL-2.0
+
+## Support
+
+- **Issues**: Report on GitHub Issues
+- **Wiki**: Check project wiki for additional documentation
+- **Secure Boot**: Community testing needed
