@@ -7,6 +7,8 @@
 #include <linux/version.h>
 /* pull in kernel bool/u32 types when this header is included early */
 #include <linux/types.h>
+/* delay helpers (msleep) */
+#include <linux/delay.h>
 
 /* forward declarations to avoid implicit-function-declaration when this
  * compat header is included before the mt76 mcu implementation that
