@@ -766,18 +766,7 @@ static void mt7902_bss_info_changed(struct ieee80211_hw *hw,
 	mt7902_mt792x_mutex_release(dev);
 }
 
-/* Compatibility wrapper for kernel 6.14+ bss_info_changed signature change */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
-static void mt7902_bss_info_changed_compat(struct ieee80211_hw *hw,
-					   struct ieee80211_vif *vif,
-					   struct ieee80211_bss_conf *info,
-					   u64 changed,
-					   unsigned int link_id)
-{
-	/* For now, ignore the link_id parameter and call the original function */
-	mt7902_bss_info_changed(hw, vif, info, changed);
-}
-#endif
+
 
 int mt7902_mac_sta_add(struct mt7902_mt76_dev *mdev, struct ieee80211_vif *vif,
 		       struct ieee80211_sta *sta)
@@ -1443,24 +1432,12 @@ const struct ieee80211_ops mt7902_ops = {
 	.config = mt7902_config,
 	.conf_tx = mt7902_conf_tx,
 	.configure_filter = mt7902_configure_filter,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
-	.bss_info_changed = mt7902_bss_info_changed_compat,
-#else
 	.bss_info_changed = mt7902_bss_info_changed,
-#endif
 	.start_ap = mt7902_start_ap,
 	.stop_ap = mt7902_stop_ap,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
-	.sta_state = mt7902_sta_state_compat,
-#else
 	.sta_state = mt7902_mt76_sta_state,
-#endif
 	.sta_pre_rcu_remove = mt7902_mt76_sta_pre_rcu_remove,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
-	.set_key = mt7902_set_key_compat,
-#else
 	.set_key = mt7902_set_key,
-#endif
 	.sta_set_decap_offload = mt7902_sta_set_decap_offload,
 #if IS_ENABLED(CONFIG_IPV6)
 	.ipv6_addr_change = mt7902_ipv6_addr_change,
@@ -1470,11 +1447,7 @@ const struct ieee80211_ops mt7902_ops = {
 	.wake_tx_queue = mt7902_mt76_wake_tx_queue,
 	.release_buffered_frames = mt7902_mt76_release_buffered_frames,
 	.channel_switch_beacon = mt7902_channel_switch_beacon,
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
-	.get_txpower = mt7902_get_txpower_compat,
-#else
 	.get_txpower = mt7902_mt76_get_txpower,
-#endif
 	.get_stats = mt7902_mt792x_get_stats,
 	.get_et_sset_count = mt7902_mt792x_get_et_sset_count,
 	.get_et_strings = mt7902_mt792x_get_et_strings,

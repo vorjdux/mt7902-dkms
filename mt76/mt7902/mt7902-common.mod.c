@@ -1040,4 +1040,4 @@ __used __section("__versions") =
 MODULE_INFO(depends, "mac80211,cfg80211,mt76");
 
 
-MODULE_INFO(srcversion, "54BEC9803E417050E5F0BB8");
+MODULE_INFO(srcversion, "6BB07405EA28EC11364E81D");
