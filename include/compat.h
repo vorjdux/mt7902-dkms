@@ -53,7 +53,7 @@
 #endif
 
 /* BSS info changed callback updates */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 16, 0)
 #define MT7902_BSS_INFO_CHANGED_SIGNATURE(hw, vif, info, changed) \
 	mt7902_bss_info_changed_compat(struct ieee80211_hw *hw, struct ieee80211_vif *vif, \
 				      struct ieee80211_bss_conf *info, u64 changed, unsigned int link_id)
@@ -61,16 +61,6 @@
 #define MT7902_BSS_INFO_CHANGED_SIGNATURE(hw, vif, info, changed) \
 	mt7902_bss_info_changed(struct ieee80211_hw *hw, struct ieee80211_vif *vif, \
 			       struct ieee80211_bss_conf *info, u64 changed)
-#endif
-
-/* Regulatory domain handling changes */
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
-#define MT7902_REG_NOTIFIER_SIGNATURE(wiphy, request, alpha2) \
-	mt7902_reg_notifier_compat(struct wiphy *wiphy, struct regulatory_request *request, \
-				  char *alpha2)
-#else
-#define MT7902_REG_NOTIFIER_SIGNATURE(wiphy, request) \
-	mt7902_reg_notifier(struct wiphy *wiphy, struct regulatory_request *request)
 #endif
 
 /* Key management callback changes */
@@ -84,6 +74,24 @@
 	mt7902_set_key(struct ieee80211_hw *hw, enum set_key_cmd cmd, \
 		      struct ieee80211_vif *vif, struct ieee80211_sta *sta, \
 		      struct ieee80211_key_conf *key)
+#endif
+
+/* Ampdu action callback changes */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 15, 0)
+#define MT7902_AMPDU_ACTION_SIGNATURE(hw, vif, params) \
+	mt7902_ampdu_action_compat(struct ieee80211_hw *hw, struct ieee80211_vif *vif, \
+				  struct ieee80211_ampdu_params *params, unsigned int link_id)
+#else
+#define MT7902_AMPDU_ACTION_SIGNATURE(hw, vif, params) \
+	mt7902_ampdu_action(struct ieee80211_hw *hw, struct ieee80211_vif *vif, \
+			   struct ieee80211_ampdu_params *params)
+#endif
+
+/* MCU timeout adjustments for newer kernels */
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(6, 14, 0)
+#define MT7902_MCU_TIMEOUT_MULTIPLIER 2
+#else
+#define MT7902_MCU_TIMEOUT_MULTIPLIER 1
 #endif
 
 /* Network device initialization compatibility */

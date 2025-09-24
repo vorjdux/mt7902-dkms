@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: ISC
 /* Copyright (C) 2023 MediaTek Inc. */
 
+#include <linux/module.h>
+#include <linux/pci.h>
+
 #include "mt7902.h"
 #include "mcu.h"
 
