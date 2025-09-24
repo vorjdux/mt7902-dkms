@@ -6,6 +6,7 @@
 
 #include "mt7902.h"
 #include "mcu.h"
+#include "../../include/compat.h"
 
 static int
 mt7902_mcu_send_message(struct mt7902_mt76_dev *mdev, struct sk_buff *skb,
@@ -19,7 +20,7 @@ mt7902_mcu_send_message(struct mt7902_mt76_dev *mdev, struct sk_buff *skb,
 	if (ret)
 		return ret;
 
-	mdev->mcu.timeout = 3 * HZ;
+	mdev->mcu.timeout = 3 * HZ * MT7902_MCU_TIMEOUT_MULTIPLIER;
 
 	if (cmd == MCU_CMD(FW_SCATTER))
 		txq = MT_MCUQ_FWDL;

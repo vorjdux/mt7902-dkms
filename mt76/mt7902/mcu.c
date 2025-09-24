@@ -2,6 +2,7 @@
 /* Copyright (C) 2023 MediaTek Inc. */
 
 #include <linux/fs.h>
+#include "../../include/compat.h"
 #include <linux/firmware.h>
 #include "mt7902.h"
 #include "mcu.h"
@@ -2886,7 +2887,7 @@ int mt7902_mcu_fill_message(struct mt7902_mt76_dev *mdev, struct sk_buff *skb,
 	u8 seq;
 
 	/* TODO: make dynamic based on msg type */
-	mdev->mcu.timeout = 20 * HZ;
+	mdev->mcu.timeout = 20 * HZ * MT7902_MCU_TIMEOUT_MULTIPLIER;
 
 	seq = ++mdev->mcu.msg_seq & 0xf;
 	if (!seq)

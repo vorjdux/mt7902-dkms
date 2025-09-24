@@ -4,6 +4,7 @@
 #include <linux/firmware.h>
 #include "mt76_connac2_mac.h"
 #include "mt76_connac_mcu.h"
+#include "../include/compat.h"
 
 int mt7902_mt76_connac_mcu_start_firmware(struct mt7902_mt76_dev *dev, u32 addr, u32 option)
 {
@@ -3007,7 +3008,7 @@ int mt7902_mt76_connac2_load_patch(struct mt7902_mt76_dev *dev, const char *fw_n
 	const struct mt7902_mt76_connac2_patch_hdr *hdr;
 	const struct firmware *fw = NULL;
 
-	sem = mt7902_mt76_connac_mcu_patch_sem_ctrl(dev, true);
+	sem = mt7902_patch_sem_ctrl_with_retry(dev, true);
 	switch (sem) {
 	case PATCH_IS_DL:
 		return 0;
@@ -3070,7 +3071,7 @@ int mt7902_mt76_connac2_load_patch(struct mt7902_mt76_dev *dev, const char *fw_n
 		dev_err(dev->dev, "Failed to start patch\n");
 
 out:
-	sem = mt7902_mt76_connac_mcu_patch_sem_ctrl(dev, false);
+	sem = mt7902_patch_sem_ctrl_with_retry(dev, false);
 	switch (sem) {
 	case PATCH_REL_SEM_SUCCESS:
 		break;

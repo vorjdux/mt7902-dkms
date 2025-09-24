@@ -8,6 +8,7 @@
 #include "mt7902.h"
 #include "mcu.h"
 #include "mac.h"
+#include "../../include/compat.h"
 
 static const struct usb_device_id mt7902u_device_table[] = {
 	{ USB_DEVICE_AND_INTERFACE_INFO(0x0e8d, 0x7961, 0xff, 0xff, 0xff),
@@ -32,7 +33,7 @@ mt7902u_mcu_send_message(struct mt76_dev *mdev, struct sk_buff *skb,
 	if (ret)
 		return ret;
 
-	mdev->mcu.timeout = 3 * HZ;
+	mdev->mcu.timeout = 3 * HZ * MT7902_MCU_TIMEOUT_MULTIPLIER;
 
 	if (cmd != MCU_CMD(FW_SCATTER))
 		ep = MT_EP_OUT_INBAND_CMD;

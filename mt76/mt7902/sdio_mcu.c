@@ -2,6 +2,7 @@
 /* Copyright (C) 2021 MediaTek Inc. */
 
 #include <linux/kernel.h>
+#include "../../include/compat.h"
 #include <linux/mmc/sdio_func.h>
 #include <linux/module.h>
 #include <linux/iopoll.h>
@@ -33,7 +34,7 @@ mt7902s_mcu_send_message(struct mt7902_mt76_dev *mdev, struct sk_buff *skb,
 	if (ret)
 		return ret;
 
-	mdev->mcu.timeout = 3 * HZ;
+	mdev->mcu.timeout = 3 * HZ * MT7902_MCU_TIMEOUT_MULTIPLIER;
 
 	if (cmd == MCU_CMD(FW_SCATTER))
 		type = MT7902_SDIO_FWDL;
