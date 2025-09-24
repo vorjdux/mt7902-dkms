@@ -5,6 +5,9 @@
 #ifndef __MT76_DMA_H
 #define __MT76_DMA_H
 
+#include <linux/types.h>
+#include "mt76.h"
+
 #include <linux/bitfield.h>
 #include <linux/bitops.h>
 #include <linux/kernel.h>
